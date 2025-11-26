@@ -46,9 +46,9 @@
 
 ```mermaid
 graph LR
-A[User Traffic (100 Request)] --> B{Redis Lock}
-B -- Lock Acquired --> C[Transaction Start]
-C --> D{Check Capacity}
-D -- Available --> E[Save & Count Up]
-E --> F[Commit & Unlock]
-B -- Lock Failed --> G[Wait or Fail]
+    A["User Traffic (100 Request)"] --> B{Redis Lock}
+    B -- Lock Acquired --> C[Transaction Start]
+    C --> D{Check Capacity}
+    D -- Available --> E["Save & Count Up"]
+    E --> F["Commit & Unlock"]
+    B -- Lock Failed --> G[Wait or Fail]
