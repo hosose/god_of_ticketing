@@ -1,0 +1,45 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.5' // 4.0.0 -> 3.3.5 로 변경 (안정 버전)
+	id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.ticket'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// 여기가 핵심 수정 포인트입니다!
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-web' // webmvc -> web 으로 수정 (필수)
+	
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'com.h2database:h2'
+	annotationProcessor 'org.projectlombok:lombok'
+	
+	testImplementation 'org.springframework.boot:spring-boot-starter-test' // 잡다한거 지우고 이거 하나면 테스트 끝입니다.
+	
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.5'
+	
+	implementation 'org.redisson:redisson-spring-boot-starter:3.34.1'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
