@@ -9,14 +9,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RedissonConfig {
 
-    private static final String REDIS_HOST_PREFIX = "redis://";
+	private static final String REDIS_HOST_PREFIX = "redis://";
 
-    @Bean
-    public RedissonClient redissonClient() {
-        Config config = new Config();
-        // Docker로 띄운 Redis에 접속 (localhost:6379)
-        config.useSingleServer().setAddress("redis://192.168.99.100:6379");
-        
-        return Redisson.create(config);
-    }
+	@Bean
+	public RedissonClient redissonClient() {
+		Config config = new Config();
+		// Docker로 띄운 Redis에 접속 (localhost:6379)
+		config.useSingleServer().setAddress(REDIS_HOST_PREFIX + "192.168.99.100:6379");
+
+		return Redisson.create(config);
+	}
 }

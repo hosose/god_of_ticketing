@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>선착순의 신 - 대기열 확인</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; text-align: center; padding-top: 50px; }
+        .container { border: 2px solid #333; display: inline-block; padding: 40px; border-radius: 20px; box-shadow: 5px 5px 15px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; }
+        .status { font-size: 40px; font-weight: bold; margin: 20px 0; color: #e74c3c; }
+        .input-area { margin-bottom: 20px; }
+        input { padding: 10px; font-size: 16px; width: 100px; text-align: center; }
+        button { padding: 10px 20px; font-size: 16px; background-color: #3498db; color: white; border: none; cursor: pointer; border-radius: 5px; }
+        button:hover { background-color: #2980b9; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎟️ 수강신청 대기실</h1>
+    
+    <div class="input-area">
+        <label>내 유저 ID: </label>
+        <input type="number" id="userId" value="88" placeholder="ID">
+        <button onclick="startPolling()">순서 확인 시작</button>
+    </div>
+
+    <div id="statusBox" class="status">대기 중...</div>
+    <div id="msg">ID를 입력하고 버튼을 누르세요.</div>
+</div>
+
+<script>
+    let intervalId = null;
+
+    function startPolling() {
+        const userId = document.getElementById('userId').value;
+        const statusBox = document.getElementById('statusBox');
+        const msg = document.getElementById('msg');
+        
+        if (!userId) {
+            alert("유저 ID를 입력하세요!");
+            return;
+        }
+
+        // 혹시 돌고 있던 게 있으면 멈춤
+        if (intervalId) clearInterval(intervalId);
+
+        msg.innerText = "서버와 통신 중...";
+        
+        // 1초(1000ms)마다 서버에 물어보는 함수 실행
+        intervalId = setInterval(() => {
+            fetch(`http://localhost:8080/lectures/1/queue/rank?userId=${userId}`)
+                .then(response => response.text())
+                .then(text => {
+                    console.log("응답:", text);
+
+                    if (text.includes("대기 순번")) {
+                        // "현재 대기 순번: 58등" -> 숫자만 추출해서 보여주기
+                        statusBox.innerText = text; 
+                        statusBox.style.color = "#e74c3c"; // 빨간색 (대기중)
+                    } else if (text.includes("없습니다")) {
+                        // 대기열 탈출! (성공 또는 실패)
+                        statusBox.innerText = "🎉 입장 완료!";
+                        statusBox.style.color = "#27ae60"; // 초록색 (성공)
+                        msg.innerText = "수강신청 로직이 처리되었습니다.";
+                        clearInterval(intervalId); // 이제 그만 물어봄
+                    }
+                })
+                .catch(err => {
+                    statusBox.innerText = "에러 발생";
+                    console.error(err);
+                });
+        }, 1000); // 1초 간격
+    }
+</script>
+
+</body>
+</html>

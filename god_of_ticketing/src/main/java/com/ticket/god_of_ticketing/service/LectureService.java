@@ -17,7 +17,7 @@ public class LectureService {
 
     private final LectureRepository lectureRepository;
     private final RegistrationRepository registrationRepository;
-    private final RedissonClient redissonClient; // ✅ 추가됨
+    private final RedissonClient redissonClient; // "Redis 문지기"와 대화할 수 있는 무전기
 
     // 생성자 주입
     public LectureService(LectureRepository lectureRepository, 
@@ -39,12 +39,13 @@ public class LectureService {
      */
     public void apply(Long userId, Long lectureId) {
         // 1. 락 이름 정의 (강의 ID별로 잠금)
+    	//1번 강의 신청하는 사람끼리만 경쟁하고, 2번 강의 신청하는 사람과는 상관없게 됩니다.
         RLock lock = redissonClient.getLock("lecture_lock:" + lectureId);
 
         try {
             // 2. 락 획득 시도 (최대 5초 기다리고, 1초 동안 점유)
             // tryLock(waitTime, leaseTime, unit)
-            boolean available = lock.tryLock(5, 1, TimeUnit.SECONDS);
+            boolean available = lock.tryLock(5, 10, TimeUnit.SECONDS);
 
             if (!available) {
                 System.out.println("락 획득 실패! 줄이 너무 깁니다.");
